@@ -83,3 +83,49 @@ export function showImage(data) {
 
     container.style.display = 'block';    // show the container
 }
+
+import { places } from './places.mjs';
+import { getIcon } from './places.mjs';
+import { museum } from './places.mjs';
+import { calculateDistance } from './places.mjs';
+export function renderNearbyPlaces(){
+    const list = document.getElementById("places-list");
+
+    places.map(place => ({
+            ...place,
+            distance: calculateDistance(
+                museum.lat,
+                museum.lon,
+                place.lat,
+                place.lon
+            )
+        }))
+        .sort((a, b) => a.distance - b.distance)
+        .forEach(place => {
+            const li = document.createElement("li");
+            li.innerHTML = `
+      <h3>${getIcon(place.type)}<br>${place.name}</h3>
+      <p>${place.distance.toFixed(2)} km away</p>
+      <a href="https://www.openstreetmap.org/?mlat=${place.lat}&mlon=${place.lon}" target="_blank">
+        View on Map
+      </a>
+    `;
+            list.appendChild(li);
+        });
+
+}
+
+
+
+export function displayArtists(artists) {
+    const container = document.getElementById('artist-list');
+
+    container.innerHTML = artists.map(artist => `
+        <div class="artist-card">
+            <img src="${artist.image || 'images/placeholder.jpg'}" alt="${artist.name}">
+            <h3>${artist.name}</h3>
+            <p>${artist.nationality}</p>
+            <p>${artist.artworks.length} artworks</p>
+        </div>
+    `).join('');
+}

@@ -1,21 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Geoffrey Etu">
+    <meta name="description" content="">
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" href="styles/small.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
     <script type="module" src="scripts/main.js"></script>
-    <title>Art Gallery</title>
+    <title>Artist</title>
 </head>
-
 <body>
     <header>
         <div class="main">
@@ -26,7 +23,7 @@
             </form>
             <button class="hamburger" id="ham-btn"></button>
         </div>
-
+    
         <div class="nagivation">
             <nav class="navbar" id="nav-menu">
                 <ul>
@@ -39,24 +36,28 @@
             </nav>
         </div>
     </header>
-
     <main>
-        <section class="event-hero">
-            <img src="images/events-hero-image.webp" alt="Event Hero Image">
-            <div class="event-hero-text">
-                <h1>Upcoming Events</h1>
-                <p>Discover the latest exhibitions, workshops, and special events at our museum.</p>
+        <section id="artist-section">
+            <h2>Artists</h2>
+            <div id="artist-list"></div>
+        </section>
+        
+        <div id="artist-modal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <span id="close-modal" class="close">&times;</span>
+                <h2 id="modal-artist-name"></h2>
+                <p id="modal-artist-bio"></p>
+                <p><strong>Born:</strong> <span id="modal-artist-born"></span></p>
+                <p><strong>Art Style:</strong> <span id="modal-artist-style"></span></p>
+                <div id="modal-artworks"></div>
             </div>
-        </section>
-        <section class="event-section">
-            <h2>Events</h2>
-            <div id="events-container" class="events-list"></div>   
-        </section>
-    </main>
+        </div>
 
+
+    </main>
     <footer class="site-footer">
         <div class="footer-container">
-
+    
             <div class="footer-about">
                 <h3>Museum & Art</h3>
                 <p>
@@ -64,7 +65,7 @@
                     and exhibitions from around the world.
                 </p>
             </div>
-
+    
             <div class="footer-links">
                 <h4>Quick Links</h4>
                 <ul>
@@ -75,20 +76,19 @@
                     <li><a href="#">Contact</a></li>
                 </ul>
             </div>
-
+    
             <div class="footer-contact">
                 <h4>Contact</h4>
                 <p>Email: info@museumart.com</p>
                 <p>Phone: +233 000 000 000</p>
                 <p>Location: Accra, Ghana</p>
             </div>
-
+    
         </div>
-
+    
         <div class="footer-bottom">
             <p>© 2026 Museum & Art. All rights reserved.</p>
         </div>
     </footer>
 </body>
-
 </html>

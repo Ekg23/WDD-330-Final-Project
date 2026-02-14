@@ -1,85 +1,75 @@
 const BASE_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
 
+/**
+ * Fetch artworks once and cache them locally
+ */
+export async function fetchArtwork(limit = 40) {
+    // Check if we already have the data cached
+    const cached = localStorage.getItem('artworkData');
+    if (cached) {
+        return JSON.parse(cached); // Return cached data
+    }
 
-export async function fetchArtwork() {
-    const response = await fetch(BASE_URL);
-    const data = await response.json();
-    console.log(data);
-    return data;
-}
+    // If not cached, fetch from the API
+    const searchRes = await fetch(`${BASE_URL}/search?q=art&hasImages=true`);
+    const data = await searchRes.json();
+    if (!data.objectIDs) return [];
 
-// Search artworks by keyword 
-export async function searchArtworks(query) {
-    const response = await fetch(`${BASE_URL}/search?q=${query}`);
-    const data = await response.json();
-    return data.objectIDs || [];
-}
-
-// Get full details for ONE artwork
-export async function getArtworkDetails(id) {
-    const response = await fetch(`${BASE_URL}/objects/${id}`);
-    return await response.json();
-}
-
-// Get featured artwork
-export async function getFeaturedArtworks() {
-    const FEATURED_IDS = [
-        436535,
-        459055,
-        437853,
-        435882
-    ];
-
-    const artworks = await Promise.all(
-        FEATURED_IDS.map(id => getArtworkDetails(id))
-    );
-
-    return artworks.filter(art => art.primaryImageSmall);
-}
-
-// Get default Art Work for Gallery 
-export async function getDefaultGalleryArtworks() {
-    const response = await fetch(`${BASE_URL}/search?hasImages=true&q=art`);
-    const data = await response.json();
-    const ids = data.objectIDs.slice(0, 24);
-    const artworks = await Promise.all(
-        ids.map(id => fetch(`${BASE_URL}/objects/${id}`).then(res => res.json())
-        )
-    );
-    return artworks.filter(art => art.primaryImageSmall);
-}
-
-
-export async function getGalleryByCategory(category) {
-    const response = await fetch(
-        `${BASE_URL}/search?hasImages=true&q=${category}`
-    );
-    const data = await response.json();
-
-    const ids = data.objectIDs.slice(0, 24);
+    const ids = data.objectIDs.slice(0, limit);
 
     const artworks = await Promise.all(
         ids.map(id =>
-            fetch(`${BASE_URL}/objects/${id}`).then(res => res.json())
+            fetch(`${BASE_URL}/objects/${id}`).then(res => res.json()).catch(() => null)
         )
     );
 
-    return artworks.filter(art => art.primaryImageSmall);
+    const validArtworks = artworks.filter(a => a); // Remove failed fetches
+
+    // Cache the results locally
+    localStorage.setItem('artworkData', JSON.stringify(validArtworks));
+
+    return validArtworks; // Return fresh data
 }
 
-export async function fetchImageDetails(objectID) {
-    try {
-        const response = await fetch(`${BASE_URL}/${objectID}`)
-        if (!response.ok) {
-            throw new Error('Network response was not ok');
-        }
-        const data = await response.json(); // expects { imageUrl, title, description }
-        return data;
-    }   catch (error) {
-        console.error('Error fetching image details:', error);
-        return null;
+/**
+ * Fetch artworks by category (no caching here, fetches fresh each time)
+ */
+export async function getGalleryByCategory(category, limit = 40) {
+    if (!category) return [];
+
+    const searchRes = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(category)}&hasImages=true`);
+    const data = await searchRes.json();
+
+    if (!data.objectIDs) return [];
+
+    const ids = data.objectIDs.slice(0, limit);
+
+    const artworks = await Promise.all(
+        ids.map(id =>
+            fetch(`${BASE_URL}/objects/${id}`).then(res => res.json()).catch(() => null)
+        )
+    );
+
+    return artworks.filter(a => a); // Remove failed fetches
+}
+
+
+/* ---------- FEATURED ARTWORKS ---------- */
+export async function getFeaturedArtworks() {
+    const cached = localStorage.getItem('featuredData');
+    if (cached) {
+        return JSON.parse(cached);
     }
-}
 
-    
-    
+    const FEATURED_IDS = [436535, 459055, 437853, 435882];
+    const artworks = await Promise.all(
+        FEATURED_IDS.map(id =>
+            fetch(`${BASE_URL}/objects/${id}`).then(res => res.json()).catch(() => null)
+        )
+    );
+
+    const validArtworks = artworks.filter(a => a && a.primaryImageSmall);
+    localStorage.setItem('featuredData', JSON.stringify(validArtworks));
+
+    return validArtworks;
+}
