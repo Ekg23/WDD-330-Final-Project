@@ -1,7 +1,6 @@
 import { fetchArtwork, getGalleryByCategory } from "./apiData.mjs";
 import { renderFeaturedArt, renderGalleryArt, displayArtists } from "./display.mjs";
 import { groupArtworksByArtist } from './details.mjs';
-import { getFavorites, saveFavorites, updateFavoriteUI } from "./favorite.mjs";
 let ARTWORK_CACHE = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,7 +13,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // 3️⃣ Render the default gallery from the cache
     renderGalleryArt(ARTWORK_CACHE);
-    updateFavoriteUI();
 
     // 4️⃣ Group artworks by artist and display them
     const artists = groupArtworksByArtist(ARTWORK_CACHE);
@@ -32,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const filteredArtworks = await getGalleryByCategory(category);
         renderGalleryArt(filteredArtworks);
-        updateFavoriteUI(); // Update favorite UI after rendering new artworks
+        
     });
    
 });
@@ -55,37 +53,38 @@ if (galleryContainer) {
 }
 
 
-document.addEventListener('DOMContentLoaded', () => {
-    const gallery = document.getElementById('gallery-container');
-    if (!gallery) return;
 
-    gallery.addEventListener('click', (e) => {
-        const btn = e.target.closest('.favorite-btn');
-        if (!btn) return;
 
-        e.stopPropagation(); // prevents image click interference
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('.favorite-btn');
+    if (!btn) return;
 
-        const card = btn.closest('.gallery-card');
-        const artID = Number(card.dataset.id);
+    const card = btn.closest('.gallery-card');
+    if (!card) return;
 
-        let favorites = getFavorites();
-        const index = favorites.findIndex(a => a.objectID === artID);
+    const artID = Number(card.dataset.id);
+    if (!artID) return;
 
-        if (index !== -1) {
-            favorites.splice(index, 1);
-        } else {
-            favorites.push({
-                objectID: artID,
-                title: card.querySelector('h3')?.textContent || 'Untitled',
-                artistDisplayName: card.querySelector('p')?.textContent || '',
-                primaryImageSmall: card.querySelector('img')?.src || ''
-            });
-        }
+    let favorites = getFavorites();
+    const index = favorites.findIndex(a => a.objectID === artID);
 
-        saveFavorites(favorites);
-        updateFavoriteUI();
-    });
+    if (index !== -1) {
+        favorites.splice(index, 1);
+    } else {
+        favorites.push({
+            objectID: artID,
+            title: card.querySelector('h3')?.textContent || 'Untitled',
+            artistDisplayName: card.querySelector('p')?.textContent || '',
+            primaryImageSmall: card.querySelector('img')?.src || ''
+        });
+    }
+
+    saveFavorites(favorites);
+    updateFavoriteUI();
+
+    console.log('Favorite toggled:', artID); // ← you WILL see this
 });
+
 
 
 function showArtworkDetails(art) {
@@ -182,46 +181,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-// Favorites page logic
-import { displayFavorites } from './display.mjs';
-
-document.addEventListener('DOMContentLoaded', () => {
-    displayFavorites();
-});
 
 
-// Favorites click handler
-const gallery = document.getElementById('gallery-container');
-if (gallery) {
-    // Event delegation — only once
-    gallery.addEventListener('click', (e) => {
-        const btn = e.target.closest('.favorite-btn');
-        if (!btn) return;
-
-        e.stopPropagation();
-
-        const card = btn.closest('.gallery-card');
-        if (!card) return;
-
-        const artID = Number(card.dataset.id);
-        let favorites = getFavorites();
-        const index = favorites.findIndex(a => a.objectID === artID);
-
-        if (index !== -1) {
-            favorites.splice(index, 1);
-        } else {
-            favorites.push({
-                objectID: artID,
-                title: card.querySelector('h3')?.textContent || 'Untitled',
-                artistDisplayName: card.querySelector('p')?.textContent || '',
-                primaryImageSmall: card.querySelector('img')?.src || ''
-            });
-        }
-
-        saveFavorites(favorites);
-        updateFavoriteUI();
-    });
-}
 
 
 

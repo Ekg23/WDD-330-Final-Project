@@ -58,7 +58,7 @@ export function renderGalleryArt(artworks) {
         card.dataset.id = art.objectID;
 
         card.innerHTML = `
-            <div class="gallery-image">
+            <div class="gallery-image" >
                 <img 
                     src="${art.primaryImageSmall}" 
                     alt="${art.title || 'Artwork'}"
@@ -67,7 +67,6 @@ export function renderGalleryArt(artworks) {
                 <div class="gallery-info">
                     <h3>${art.title || 'Untitled'}</h3>
                     <p>${art.artistDisplayName || 'Unknown Artist'}</p>
-                    <button class="favorite-btn" aria-label="Toggle Favorite">❤️</button>
                 </div>
             </div>
         `;
@@ -127,6 +126,7 @@ export function renderNearbyPlaces(){
 
 export function displayArtists(artists) {
     const container = document.getElementById('artist-list');
+    if (!container) return;
 
     container.innerHTML = artists.map(artist => `
         <div class="artist-card">
@@ -138,63 +138,6 @@ export function displayArtists(artists) {
     `).join('');
 }
 
-// Favorites Display
-import { getFavorites, saveFavorites } from './favorite.mjs';
-
-export function displayFavorites() {
-    const container = document.getElementById('favorites-grid');
-
-    if (!container) return; // important for multi-page sites
-
-    const favorites = getFavorites();
-
-    if (favorites.length === 0) {
-        container.innerHTML = `
-      <p class="empty-favorites">
-        You haven’t added any favorites yet.
-      </p>
-    `;
-        return;
-    }
-
-    container.innerHTML = '';
-
-    favorites.forEach(art => {
-        if (!art?.primaryImageSmall) return;
-
-        const card = document.createElement('figure');
-        card.className = 'favorite-item';
-
-        card.innerHTML = `
-      <img src="${art.primaryImageSmall}" alt="${art.title}">
-      <figcaption>
-        <h4>${art.title || 'Untitled'}</h4>
-        <button data-id="${art.objectID}" class="remove-favorite">
-          Remove
-        </button>
-      </figcaption>
-    `;
-
-        container.appendChild(card);
-    });
-
-    attachRemoveHandlers();
-}
 
 
-// Remove from favorites
 
-function attachRemoveHandlers() {
-    document.querySelectorAll('.remove-favorite').forEach(btn => {
-        btn.addEventListener('click', () => {
-            const id = Number(btn.dataset.id);
-
-            const favorites = getFavorites().filter(
-                art => art.objectID !== id
-            );
-
-            saveFavorites(favorites);
-            displayFavorites();
-        });
-    });
-}
