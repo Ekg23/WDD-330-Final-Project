@@ -23,7 +23,7 @@ export function renderFeaturedArt(artworks) {
 
     artworks.forEach(art => {
         const card = document.createElement("div");
-        card.classList.add("featured-card");
+        card.classList.add("featured-card", "fade-slide");
 
         card.innerHTML = `
         <img src="${art.primaryImageSmall}" alt="${art.title}">
@@ -38,38 +38,44 @@ export function renderFeaturedArt(artworks) {
 
 //Display Galllery Art Work
 export function renderGalleryArt(artworks) {
-    const container = document.querySelector("#gallery-container")
+    const container = document.querySelector("#gallery-container");
     if (!container) return;
-    //Clear previous content 
+
+    // Clear previous content
     container.innerHTML = "";
 
     if (!artworks || artworks.length === 0) {
         container.innerHTML = "<p class='no-result'>No artworks found.</p>";
+        return;
     }
 
-    artworks.forEach(art => {
+    // Filter out artworks without images
+    const artworksWithImages = artworks.filter(art => art.primaryImageSmall && art.primaryImageSmall.trim() !== "");
+
+    artworksWithImages.forEach(art => {
         const card = document.createElement("div");
-        card.classList.add("gallery-card");
+        card.classList.add("gallery-card", "fade-slide");
+        card.dataset.id = art.objectID;
 
         card.innerHTML = `
-      <div class="gallery-image">
-        <img 
-          src="${art.primaryImageSmall}" 
-          alt="${art.title || "Artwork"}"
-          loading="lazy"
-        >
-        <div class="gallery-info">
-            <h3>${art.title || "Untitled"}</h3>
-            <p>${art.artistDisplayName || "Unknown Artist"}</p>
-        </div>
-      </div>
-      
-    `;
+            <div class="gallery-image">
+                <img 
+                    src="${art.primaryImageSmall}" 
+                    alt="${art.title || 'Artwork'}"
+                    loading="lazy"
+                >
+                <div class="gallery-info">
+                    <h3>${art.title || 'Untitled'}</h3>
+                    <p>${art.artistDisplayName || 'Unknown Artist'}</p>
+                    <button class="favorite-btn" aria-label="Toggle Favorite">❤️</button>
+                </div>
+            </div>
+        `;
 
         container.appendChild(card);
     });
-
 }
+
 
 
 export function showImage(data) {
@@ -90,7 +96,9 @@ import { museum } from './places.mjs';
 import { calculateDistance } from './places.mjs';
 export function renderNearbyPlaces(){
     const list = document.getElementById("places-list");
+    if (!list) return;
 
+    list.innerHTML = '';
     places.map(place => ({
             ...place,
             distance: calculateDistance(
@@ -122,10 +130,71 @@ export function displayArtists(artists) {
 
     container.innerHTML = artists.map(artist => `
         <div class="artist-card">
-            <img src="${artist.image || 'images/placeholder.jpg'}" alt="${artist.name}">
+            <img src="${artist.image || 'images/placeholder.png'}" alt="${artist.name}">
             <h3>${artist.name}</h3>
             <p>${artist.nationality}</p>
             <p>${artist.artworks.length} artworks</p>
         </div>
     `).join('');
+}
+
+// Favorites Display
+import { getFavorites, saveFavorites } from './favorite.mjs';
+
+export function displayFavorites() {
+    const container = document.getElementById('favorites-grid');
+
+    if (!container) return; // important for multi-page sites
+
+    const favorites = getFavorites();
+
+    if (favorites.length === 0) {
+        container.innerHTML = `
+      <p class="empty-favorites">
+        You haven’t added any favorites yet.
+      </p>
+    `;
+        return;
+    }
+
+    container.innerHTML = '';
+
+    favorites.forEach(art => {
+        if (!art?.primaryImageSmall) return;
+
+        const card = document.createElement('figure');
+        card.className = 'favorite-item';
+
+        card.innerHTML = `
+      <img src="${art.primaryImageSmall}" alt="${art.title}">
+      <figcaption>
+        <h4>${art.title || 'Untitled'}</h4>
+        <button data-id="${art.objectID}" class="remove-favorite">
+          Remove
+        </button>
+      </figcaption>
+    `;
+
+        container.appendChild(card);
+    });
+
+    attachRemoveHandlers();
+}
+
+
+// Remove from favorites
+
+function attachRemoveHandlers() {
+    document.querySelectorAll('.remove-favorite').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const id = Number(btn.dataset.id);
+
+            const favorites = getFavorites().filter(
+                art => art.objectID !== id
+            );
+
+            saveFavorites(favorites);
+            displayFavorites();
+        });
+    });
 }

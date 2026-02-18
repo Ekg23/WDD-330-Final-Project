@@ -4,12 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="author" content="Geoffrey Etu">
-    <meta name="description" content="">
+    <meta name="description" content="Explore profiles of talented artists, their backgrounds, styles, and featured works. Learn more about the creators behind the art.">
+    <meta property="og:title" content="Featured Artists">
+    <meta property="og:description" content="Explore profiles of talented artists, their backgrounds, styles, and featured works. Learn more about the creators behind the art.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://yourwebsite.com/artists">
+    <meta property="og:image" content="https://yourwebsite.com/images/og-artists.jpg">
     <link rel="stylesheet" href="styles/style.css">
     <link rel="stylesheet" href="styles/small.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link rel="apple-touch-icon" sizes="180x180" href="images/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="images/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="images/favicon-16x16.png">
+    <link rel="manifest" href="images/site.webmanifest">
     <script type="module" src="scripts/main.js"></script>
     <title>Artist</title>
 </head>
@@ -17,10 +26,6 @@
     <header>
         <div class="main">
             <h1 class="logo">Museum & Art</h1>
-            <form class="search-bar">
-                <input type="text" placeholder="Search..." />
-                <button type="submit">🔍</button>
-            </form>
             <button class="hamburger" id="ham-btn"></button>
         </div>
     
@@ -31,7 +36,7 @@
                     <li><a href="gallery.html">Gallery</a></li>
                     <li><a href="event.html">Events</a></li>
                     <li><a href="artist.html">Artist</a></li>
-                    <li><a href="">Favorites</a></li>
+                    <li><a href="favorite.html">Favorites</a></li>
                 </ul>
             </nav>
         </div>
@@ -39,6 +44,11 @@
     <main>
         <section id="artist-section">
             <h2>Artists</h2>
+            <p class="artistes-intro">
+                Discover the artists behind the masterpieces—painters, sculptors, and visionaries
+                whose creativity has shaped art across cultures and centuries.
+            </p>
+
             <div id="artist-list"></div>
         </section>
         

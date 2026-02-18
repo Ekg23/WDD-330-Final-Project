@@ -1,7 +1,7 @@
 import { fetchArtwork, getGalleryByCategory } from "./apiData.mjs";
 import { renderFeaturedArt, renderGalleryArt, displayArtists } from "./display.mjs";
 import { groupArtworksByArtist } from './details.mjs';
-
+import { getFavorites, saveFavorites, updateFavoriteUI } from "./favorite.mjs";
 let ARTWORK_CACHE = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -9,11 +9,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     ARTWORK_CACHE = await fetchArtwork();
 
     // 2️⃣ Render featured artworks from the cache
-    const featured = ARTWORK_CACHE.slice(0, 4); // First 4 artworks for featured
+    const featured = ARTWORK_CACHE.slice(5, 9); // First 4 artworks for featured
     renderFeaturedArt(featured);
 
     // 3️⃣ Render the default gallery from the cache
     renderGalleryArt(ARTWORK_CACHE);
+    updateFavoriteUI();
 
     // 4️⃣ Group artworks by artist and display them
     const artists = groupArtworksByArtist(ARTWORK_CACHE);
@@ -31,7 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const filteredArtworks = await getGalleryByCategory(category);
         renderGalleryArt(filteredArtworks);
+        updateFavoriteUI(); // Update favorite UI after rendering new artworks
     });
+   
 });
 
 // Handle artwork click to show details from cache
@@ -48,7 +51,42 @@ if (galleryContainer) {
 
         showArtworkDetails(artwork); // Only display from cached data
     });
+    
 }
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const gallery = document.getElementById('gallery-container');
+    if (!gallery) return;
+
+    gallery.addEventListener('click', (e) => {
+        const btn = e.target.closest('.favorite-btn');
+        if (!btn) return;
+
+        e.stopPropagation(); // prevents image click interference
+
+        const card = btn.closest('.gallery-card');
+        const artID = Number(card.dataset.id);
+
+        let favorites = getFavorites();
+        const index = favorites.findIndex(a => a.objectID === artID);
+
+        if (index !== -1) {
+            favorites.splice(index, 1);
+        } else {
+            favorites.push({
+                objectID: artID,
+                title: card.querySelector('h3')?.textContent || 'Untitled',
+                artistDisplayName: card.querySelector('p')?.textContent || '',
+                primaryImageSmall: card.querySelector('img')?.src || ''
+            });
+        }
+
+        saveFavorites(favorites);
+        updateFavoriteUI();
+    });
+});
+
 
 function showArtworkDetails(art) {
     const container = document.getElementById('details-container');
@@ -88,57 +126,137 @@ document.addEventListener("DOMContentLoaded", async () => {
 });
 
 
-
-async function init() {
-    const artworks = await fetchArtwork();          // fetch ONCE
-    const artists = groupArtworksByArtist(artworks); // reuse data
-    displayArtists(artists);                          // render
-}
-
-document.addEventListener('DOMContentLoaded', init);
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const artistContainer = document.getElementById('artist-list');
-    if (artistContainer) {
-        artistContainer.addEventListener('click', (e) => {
-            const card = e.target.closest('.artist-card');
-            if (!card) return;
+    const artistModal = document.getElementById('artist-modal');
+    const closeModal = document.getElementById('close-modal');
 
-            const artistName = card.querySelector('h3').textContent;
-            const artist = ARTWORK_CACHE.find(art => art.artistDisplayName === artistName);
+    if (!artistContainer || !artistModal || !closeModal) return;
 
-            if (artist) {
-                document.getElementById('modal-artist-name').textContent = artist.artistDisplayName;
-                document.getElementById('modal-artist-bio').textContent = artist.artistBio || 'No bio available';
-                document.getElementById('modal-artist-born').textContent = artist.artistBeginDate || 'N/A';
-                document.getElementById('modal-artist-style').textContent = artist.artistNationality || 'N/A';
+    // Open modal when clicking an artist card
+    artistContainer.addEventListener('click', (e) => {
+        const card = e.target.closest('.artist-card');
+        if (!card) return;
 
-                const modalArtworksContainer = document.getElementById('modal-artworks');
-                if (artist.artworks && Array.isArray(artist.artworks)) {
-                    modalArtworksContainer.innerHTML = artist.artworks.map(a => `
-            <div class="modal-artwork">
-                <img src="${a.primaryImageSmall}" alt="${a.title}">
-                <p>${a.title}</p>
-            </div>
-        `).join('');
-                } else {
-                    modalArtworksContainer.innerHTML = '<p>No artworks available.</p>';
-                }
+        const artistName = card.querySelector('h3').textContent;
+        const artist = ARTWORK_CACHE.find(art => art.artistDisplayName === artistName);
 
-                // Show the modal
-                document.getElementById('artist-modal').style.display = 'flex';
+        if (artist) {
+            document.getElementById('modal-artist-name').textContent = artist.artistDisplayName;
+            document.getElementById('modal-artist-bio').textContent = artist.artistBio || 'No bio available';
+            document.getElementById('modal-artist-born').textContent = artist.artistBeginDate || 'N/A';
+            document.getElementById('modal-artist-style').textContent = artist.artistNationality || 'N/A';
+
+            const modalArtworksContainer = document.getElementById('modal-artworks');
+            if (artist.artworks && Array.isArray(artist.artworks)) {
+                modalArtworksContainer.innerHTML = artist.artworks.map(a => `
+                    <div class="modal-artwork">
+                        <img src="${a.primaryImageSmall}" alt="${a.title}">
+                        <p>${a.title}</p>
+                    </div>
+                `).join('');
+            } else {
+                modalArtworksContainer.innerHTML = '<p>No artworks available.</p>';
             }
-    // rest of your logic here
-        });
-    }
+
+            // Show the modal
+            artistModal.style.display = 'flex';
+        }
+    });
+
+    // Close modal when clicking the close button
+    closeModal.addEventListener('click', () => {
+        artistModal.style.display = 'none';
+    });
+
+    // Optional: close modal when clicking outside the modal content
+    artistModal.addEventListener('click', (e) => {
+        if (e.target === artistModal) {
+            artistModal.style.display = 'none';
+        }
+    });
 });
 
 
 
-document.getElementById('artist-modal').style.display = 'flex';
-const closeModal = document.getElementById('close-modal');
-closeModal.addEventListener('click', () => {
-    document.getElementById('artist-modal').style.display = 'none';
+
+
+
+// Favorites page logic
+import { displayFavorites } from './display.mjs';
+
+document.addEventListener('DOMContentLoaded', () => {
+    displayFavorites();
 });
+
+
+// Favorites click handler
+const gallery = document.getElementById('gallery-container');
+if (gallery) {
+    // Event delegation — only once
+    gallery.addEventListener('click', (e) => {
+        const btn = e.target.closest('.favorite-btn');
+        if (!btn) return;
+
+        e.stopPropagation();
+
+        const card = btn.closest('.gallery-card');
+        if (!card) return;
+
+        const artID = Number(card.dataset.id);
+        let favorites = getFavorites();
+        const index = favorites.findIndex(a => a.objectID === artID);
+
+        if (index !== -1) {
+            favorites.splice(index, 1);
+        } else {
+            favorites.push({
+                objectID: artID,
+                title: card.querySelector('h3')?.textContent || 'Untitled',
+                artistDisplayName: card.querySelector('p')?.textContent || '',
+                primaryImageSmall: card.querySelector('img')?.src || ''
+            });
+        }
+
+        saveFavorites(favorites);
+        updateFavoriteUI();
+    });
+}
+
+
+
+
+// Search functionality
+const searchForm = document.getElementById('search-form');
+const searchInput = document.getElementById('search-input');
+
+if (searchForm && searchInput) {
+    searchForm.addEventListener('submit', (e) => {
+        e.preventDefault(); // prevent page reload
+
+        const query = searchInput.value.trim().toLowerCase();
+
+        let results = [];
+
+        if (!query) {
+            // Empty search → show full gallery
+            results = ARTWORK_CACHE;
+        } else {
+            // Filter artworks by title or artist
+            results = ARTWORK_CACHE.filter(art => {
+                const title = art.title?.toLowerCase() || '';
+                const artist = art.artistDisplayName?.toLowerCase() || '';
+                return title.includes(query) || artist.includes(query);
+            });
+        }
+
+        // Render the filtered results
+        renderGalleryArt(results);
+
+        // Update favorite hearts after rendering
+        updateFavoriteUI();
+
+        // Important: If you previously used attachFavoriteHandlers(), you would call it here
+        // attachFavoriteHandlers(); // only if you still have it
+    });
+}

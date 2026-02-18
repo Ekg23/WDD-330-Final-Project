@@ -1,3 +1,35 @@
+
+@media screen and (max-width: 480px) {
+    .logo {
+        font-size: 18px;
+    }
+    
+    .search-bar {
+        width: 100%;
+    }
+
+    .search-bar button {
+        padding: 2px 4px;
+        cursor: pointer;
+        display: none;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @media screen and (max-width: 768px){
     nav {
         display: none;  
@@ -5,7 +37,7 @@
 
     .navbar.show {
         display: block;
-        background-color: #E8D3A8;
+        background-color: #ded2d1;
     }
     
     .navbar ul {
@@ -26,6 +58,12 @@
     
     }
 
+
+    .navbar ul li a:hover {
+        background-color: #e3c2bd;
+        border-bottom: none;
+    }
+
     .hamburger {
         cursor: pointer;
         border: none;
@@ -34,6 +72,9 @@
         display: block;
         width: 44px;
         height: 44px;
+        position: absolute;
+        top: 5px;
+        right: 50px;
     }
     
     .hamburger::before {
@@ -46,7 +87,7 @@
     }
 
     .logo {
-        font-size: 24px;
+        font-size: 44px;
     }
     .search-bar {
         width: 80%;
@@ -112,5 +153,77 @@
     .footer-links,
     .footer-contact {
         flex: unset;
+    }
+}
+
+
+@media screen and (max-width: 900px) {
+   .logo {
+        font-size: 20px;
+    }
+    .search-bar {
+        width: 60%;
+
+    }
+    .search-bar input {
+        padding: 10px 50px;
+        border-radius: 8px;
+    }
+    
+    .search-bar button {
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+    .navbar ul {
+        display: flex;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+        flex-wrap: nowrap;
+    }
+    .navbar ul li {
+        margin: 0 10px;
+    }
+    .navbar ul li a {
+        padding: 10px 15px;
+    }
+}
+
+
+
+@media screen and (max-width: 1024px) {
+    .logo {
+            font-size: 34px;
+        }
+    
+    .search-bar {
+        width: 60%;
+
+    }
+
+    .search-bar input {
+        padding: 10px 50px;
+        border-radius: 8px;
+    }
+
+    .search-bar button {
+        padding: 10px 20px;
+        cursor: pointer;
+    }
+
+    .navbar ul {
+        display: flex;
+        justify-content: center;
+        padding: 0;
+        margin: 0;
+        flex-wrap: nowrap;
+    }
+
+    .navbar ul li {
+        margin: 0 10px;
+    }
+
+    .navbar ul li a {
+        padding: 10px 15px;
     }
 }

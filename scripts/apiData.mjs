@@ -3,7 +3,7 @@ const BASE_URL = "https://collectionapi.metmuseum.org/public/collection/v1";
 /**
  * Fetch artworks once and cache them locally
  */
-export async function fetchArtwork(limit = 40) {
+export async function fetchArtwork(limit = 60) {
     // Check if we already have the data cached
     const cached = localStorage.getItem('artworkData');
     if (cached) {
@@ -34,7 +34,7 @@ export async function fetchArtwork(limit = 40) {
 /**
  * Fetch artworks by category (no caching here, fetches fresh each time)
  */
-export async function getGalleryByCategory(category, limit = 40) {
+export async function getGalleryByCategory(category, limit =60) {
     if (!category) return [];
 
     const searchRes = await fetch(`${BASE_URL}/search?q=${encodeURIComponent(category)}&hasImages=true`);
@@ -61,7 +61,7 @@ export async function getFeaturedArtworks() {
         return JSON.parse(cached);
     }
 
-    const FEATURED_IDS = [436535, 459055, 437853, 435882];
+    const FEATURED_IDS = [436121, 459055, 437853, 436532];
     const artworks = await Promise.all(
         FEATURED_IDS.map(id =>
             fetch(`${BASE_URL}/objects/${id}`).then(res => res.json()).catch(() => null)
